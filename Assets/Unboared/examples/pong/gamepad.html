@@ -1,0 +1,185 @@
+<html lang="fr">
+
+<head>
+        <!-- Metadata -->
+        <meta charset="utf8">
+        <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+
+        <!-- Import Unboared UMD library (Javascript) -->
+        <script src="https://developers.unboared.com/unboared-lib/umd/v0.3.1/unboared-lib.js"></script>
+
+        <!-- Import custom stylesheet -->
+        <link rel="stylesheet" href="src/pong/static/css/style.css" type="text/css">
+
+        <!-- Declare custom font-family and media behaviours -->
+        <style type="text/css">
+                /* Add font face */
+                
+                @font-face {
+                        font-family: 'MontserratBold';
+                        src: url('src/pong/assets/fonts/Montserrat-Bold.ttf') format("truetype");
+                }
+                /* Manage orientation */
+                
+                @media screen and (orientation:landscape) {
+                        #portrait {
+                                display: none;
+                        }
+                }
+                
+                @media screen and (orientation:portrait) {
+                        #landscape {
+                                display: none;
+                        }
+                }
+                /* Declare default global styles */
+                
+                html,
+                body {
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        padding: 0;
+                        margin: 0;
+                        font-family: 'MontserratBold';
+                        -webkit-touch-callout: none;
+                        -webkit-text-size-adjust: none;
+                        -ms-text-size-adjust: none;
+                        -webkit-user-select: none;
+                        -moz-user-select: none;
+                        -ms-user-select: none;
+                        user-select: none;
+                        -webkit-highlight: none;
+                        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+                        -webkit-tap-highlight-color: transparent;
+                        -ms-content-zooming: none;
+                        background: #070219;
+                        color: white;
+                        font-size: 40;
+                        text-align: center;
+                }
+        </style>
+
+        <script type="text/javascript">
+                /**
+                 * This application is an interface to interact with the DOM. 
+                 */
+                class PongGamepad {
+
+                        /**
+                         * Instanciate the Tiar Stellar application on gamepads.
+                         * @param {string} showScene - The name of the scene to show (only used in test mode).  
+                         */
+                        constructor(showScene) {
+                                let that = this;
+                                that.unboared = new Unboared.Game(); // Instanciate Unboared API
+                                that.unboared.init(); // Initialize Unboared API
+
+                                // Hide all scenes (except the one given in the constructor)
+                                if (showScene) {
+                                        that.showScene(showScene)
+                                }
+
+                                // Declare behaviour when the game in ready
+                                that.unboared.onReady(() => {
+                                        // Show the current scene
+                                        that.showScene(that.unboared.getScene());
+                                })
+
+                                // Declare behaviour when the scene change
+                                that.unboared.onSceneChange(() => {
+                                        that.showScene(that.unboared.getScene());
+                                })
+
+                                that.unboared.start();
+
+                                // add ontouchstart attribute to all elements
+                                if (!("ontouchstart" in document.createElement("div"))) {
+                                        var elements = document.getElementsByTagName("*");
+                                        for (var i = 0; i < elements.length; ++i) {
+                                                var element = elements[i];
+                                                var ontouchstart = element.getAttribute("ontouchstart");
+                                                if (ontouchstart) {
+                                                        element.setAttribute("onmousedown", ontouchstart);
+                                                }
+                                                var ontouchend = element.getAttribute("ontouchend");
+                                                if (ontouchend) {
+                                                        element.setAttribute("onmouseup", ontouchend);
+                                                }
+                                        }
+                                }
+                        }
+
+
+
+                        getMyColor() {
+                                return this.unboared.getColor();
+                        }
+
+                        sendMessageToScreen(msg, data) {
+                                console.log(msg)
+                                console.log(data)
+                                this.unboared.emitAction(msg, data);
+                        }
+
+                        sendDebugMessageToScreen() {
+                                var message = document.getElementById("message").value;
+                                this.sendMessageToScreen(message)
+                        }
+
+                        showGamepadType(type, cond) {
+                                let elements = document.getElementsByClassName(type, cond)
+                                for (let i = 0; i < elements.length; i++) {
+                                        elements[i].style.display = "none"
+                                        if (cond) {
+                                                elements[i].style.display = "flex"
+                                        } else {
+                                                elements[i].style.display = "none"
+                                        }
+                                }
+                        }
+
+                        showGamepad() {
+                                this.showGamepadType("gamepadMaster", this.unboared.isMaster())
+                                this.showGamepadType("gamepadOther", !this.unboared.isMaster())
+                        }
+
+                        showScene(scene) {
+                                var scenesElement = document.getElementsByClassName("scene")
+                                for (let i = 0; i < scenesElement.length; i++) {
+                                        scenesElement[i].style.display = "none"
+                                        if (scenesElement[i].getAttribute("id") === scene) {
+                                                scenesElement[i].style.display = "flex"
+                                        }
+                                }
+                        }
+                }
+        </script>
+
+</head>
+
+<body onload="window.app = new PongGamepad()">
+        <!-- The game mode scene -->
+        <div class="scene" id="home" style="display:none;">
+                <div>
+                        <div class="button left" ontouchstart="window.app.sendMessageToScreen('up:start')" ontouchend="window.app.sendMessageToScreen('up:end')">
+                                UP
+                        </div>
+                        <div class="button right" ontouchstart="window.app.sendMessageToScreen('down:start')" ontouchend="window.app.sendMessageToScreen('down:end')">
+                                DOWN
+                        </div>
+                </div>
+        </div>
+
+        <script>
+                // Print data into elements
+                function debug(obj) {
+                        console.log(obj)
+                }
+        </script>
+
+</body>
+
+</html>

@@ -1,0 +1,141 @@
+<html>
+
+<head>
+        <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+        <script src="https://developers.unboared.com/unboared-lib/umd/v0.3.2/unboared-lib.js"></script>
+
+        <style type=text/css>
+                .button {
+                        background: #070219;
+                        color: white;
+                        font-family: Arial;
+                        font-size: 14px;
+                        padding: 5px 10px 5px 10px;
+                        border: solid #1f1f1f 2px;
+                        -webkit-border-radius: 11;
+                        -moz-border-radius: 11;
+                        border-radius: 12px;
+                        width: 100%;
+                        text-align: left;
+                        box-sizing: border-box;
+                }
+                
+                .button-half {
+                        width: 49%;
+                        display: inline-block;
+                }
+                
+                #content {
+                        position: absolute;
+                        font-family: Arial;
+                        color: white;
+                        bottom: 5%;
+                }
+                
+                #profile-pic {
+                        position: absolute;
+                        background-size: cover;
+                        width: 50px;
+                        height: 50px;
+                        right: 5%;
+                        bottom: 5%;
+                }
+        </style>
+
+        <script type="text/javascript">
+                class MyApp {
+                        constructor() {
+                                this.unboared = new Unboared.Game();
+                                this.unboared.init();
+
+                                // this.unboared.onReady(() => {
+                                //         console.log("onReady");
+                                // })
+
+                                // this.unboared.onConnect((deviceID) => {
+                                //         updateText(this.unboared.getGamepadIDs().length);
+                                // })
+
+                                this.unboared.start();
+
+                                if (!("ontouchstart" in document.createElement("div"))) {
+                                        var elements = document.getElementsByTagName("*");
+                                        for (var i = 0; i < elements.length; ++i) {
+                                                var element = elements[i];
+                                                var ontouchstart = element.getAttribute("ontouchstart");
+                                                if (ontouchstart) {
+                                                        element.setAttribute("onmousedown", ontouchstart);
+                                                }
+                                                var ontouchend = element.getAttribute("ontouchend");
+                                                if (ontouchend) {
+                                                        element.setAttribute("onmouseup", ontouchend);
+                                                }
+                                        }
+                                }
+                        }
+
+
+                        sendMessageToScreen(msg) {
+                                this.unboared.emitAction(msg);
+                        }
+
+                        broadcastMessage(msg) {
+                                this.unboared.broadcast(msg);
+                        }
+
+                        showDeviceId() {
+                                var id = this.unboared.getDeviceID();
+                                document.getElementById("content").innerHTML = "My Device ID is: " + id;
+                        }
+
+                        showUsername() {
+                                var name = this.unboared.getUsername();
+                                document.getElementById("content").innerHTML = "My username is: " + name;
+                        }
+
+                        showAvatar() {
+                                var picUrl = this.unboared.getAvatar();
+                                console.log(picUrl);
+                                document.getElementById("profile-pic").style.backgroundImage = "url(" + picUrl + ")";
+                        };
+                        showNumberOfGamepads() {
+                                var number = this.unboared.getGamepadIDs().length;
+                                document.getElementById("content").innerHTML = "Number of gamepads: " + number;
+                        };
+                        showMasterID() {
+                                var master_id = this.unboared.getMasterID();
+                                document.getElementById("content").innerHTML = "Master is: " + master_id;
+                        };
+
+                        browseToHome() {
+                                this.unboared.browseToHome();
+                        };
+
+                        browseToUnboared() {
+                                this.unboared.BrowseToURL("https://unboared.com/");
+                        };
+                }
+        </script>
+
+</head>
+
+<body onload="window.app = new MyApp()">
+        <div style="margin-top:50px">
+                <div class="button" ontouchstart="window.app.sendMessageToScreen('left')" ontouchend="window.app.sendMessageToScreen('stop')">Send Message to Screen: Rotate Logo Left</div>
+                <div class="button" ontouchstart="window.app.sendMessageToScreen('right')" ontouchend="window.app.sendMessageToScreen('stop')">Send Message to Screen: Rotate Logo Right</div>
+                <div class="button button-half" ontouchstart="window.app.broadcastMessage('Hey everyone!')">Broadcast Message</div>
+                <div class="button button-half" ontouchstart="window.app.showDeviceId()">Show my Device Id</div>
+                <div class="button button-half" ontouchstart="window.app.showUsername()">Show my Username</div>
+                <div class="button button-half" ontouchstart="window.app.showAvatar()">Show my Avatar</div>
+                <div class="button" ontouchstart="window.app.showNumberOfGamepads()">Show number of gamepads</div>
+                <div class="button button-half" ontouchstart="window.app.showMasterID()">Show Master Id</div>
+                <div class="button button-half" ontouchstart="window.app.browseToHome()">Browse Home </div>
+                <div class="button button-half" ontouchstart="window.app.browseToUnboared()">Browse to unboared.com</div>
+        </div>
+        <div id="profile-pic"></div>
+        <div id="content">
+                <!--Incoming messages get displayed in this container-->
+        </div>
+</body>
+
+</html>

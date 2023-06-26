@@ -1,0 +1,18 @@
+.button {
+        position: absolute;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 50%;
+        height: 100%;
+}
+
+.left {
+        left: 0;
+        background-color: #FF2453;
+}
+
+.right {
+        left: 50%;
+        background-color: #070219;
+}
