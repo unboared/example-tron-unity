@@ -1,5 +1,5 @@
-using System;
 using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 using TMPro;
 using UnityUnboared;
@@ -28,18 +28,37 @@ public class GameManager : MonoBehaviour
         else
             Destroy(gameObject);
        
-        Unboared.instance.onReady += OnReady;
+        Unboared.instance.onReady += ResetGame;
+        Unboared.instance.onConnect += OnConnect;
+        Unboared.instance.onDisconnect += OnConnect;
+        Unboared.instance.onMessage += OnMessage;
     }
 
-    /* When the game is launched */
-    private void OnReady()
-    {
+    private void ResetGame() {
         // for each connected players
         List<string> gamepads = Unboared.instance.GetGamepadIDs();
         for (int i = 0; i < Mathf.Min(gamepads.Count, GameConfig.MAX_NUM_PLAYER); i++)
         {
             // we add a new player
             CreatePlayer(gamepads[i], spawnPoint[i], GameConfig.INITIAL_DIRECTION[i]);
+        }
+    }
+
+    /**
+     * This function is called each time a message is received on the screen side.
+     */
+    private void OnConnect(string deviceID)
+    {
+        ResetGame();
+    }
+
+    /**
+     * This function is called each time a message is received on the screen side.
+     */
+    private void OnMessage(string message, string from, JToken data)
+    {
+        if (message == "START"){
+            ResetGame();
         }
     }
 

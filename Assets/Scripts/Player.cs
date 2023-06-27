@@ -8,6 +8,9 @@ public class Player : MonoBehaviour
     /* The current direction of the player*/
     private Vector2 direction = Vector2.right;
 
+    /* A reference to the segment prefab */
+    public GameObject segmentPrefab;
+
     /* The color of the player */
     [HideInInspector]
     public Color color = Color.white;
@@ -16,8 +19,33 @@ public class Player : MonoBehaviour
     [HideInInspector]
     public string id, username;
 
-    /* A reference to the segment prefab */
-    public GameObject segmentPrefab;
+    // ---- MANAGE PLAYER'S DISPLAY ----
+
+    /**
+     * At each frame an object is placed at the previous position.
+     */
+    private void FixedUpdate()
+    {
+    	// we increase the size of the segment
+        Grow();
+
+        // we update the position depending on the current position and the direction
+	    transform.position = new Vector2(
+            Mathf.Round(transform.position.x) + direction.x,
+            Mathf.Round(transform.position.y) + direction.y
+        );
+    }
+
+    /**
+     * Increase the size of the segment
+     */
+    private void Grow()
+    {
+        GameObject segment = Instantiate(segmentPrefab, transform.position, transform.rotation);
+        segment.GetComponent<SpriteRenderer>().color = color;
+    }
+
+    // ---- MANAGE PLAYER ----
 
     /**
      * Initialze player's data.
@@ -27,6 +55,38 @@ public class Player : MonoBehaviour
         id = deviceID;
         username = Unboared.instance.GetUsername(deviceID);
         ColorUtility.TryParseHtmlString(Unboared.instance.GetColor(deviceID), out color);
+    }
+
+    /**
+     * Manages collisions with other players and walls
+     */
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if(collision.CompareTag("Player") || collision.CompareTag("Wall"))
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    private void OnEnable() {
+        GameManager.instance.players.Add(this);
+    }
+
+    private void OnDisable() {
+        GameManager.instance.players.Remove(this);
+        GameManager.instance.CheckForVictory();
+    }
+
+
+    // ---- CONTROL THE PLAYER ----
+
+    /**
+     * Subscribe to the onMessage event and assign color.
+     */
+    private void Awake()
+    {
+        Unboared.instance.onMessage += OnMessage; // register Unboared events
+        GetComponent<SpriteRenderer>().color = color;
     }
 
     /**
@@ -44,66 +104,24 @@ public class Player : MonoBehaviour
         switch (moveDirection)
         {
             case "UP":
-                direction = Vector2.up;
-                break;
-            case "DOWN":
-                direction = Vector2.down;
-                break;
-            case "LEFT":
-                direction = Vector2.left;
+                if (direction != Vector2.down)
+                    direction = Vector2.up;
                 break;
             case "RIGHT":
-                direction = Vector2.right;
+                if (direction != Vector2.left)
+                    direction = Vector2.right;
+                break;
+            case "DOWN":
+                if (direction != Vector2.up)
+                    direction = Vector2.down;
+                break;
+            case "LEFT":
+                if (direction != Vector2.right)
+                    direction = Vector2.left;
                 break;
         }
     }
 
-    
-    /**
-     * Increase the size of the segment
-     */
-    private void Grow()
-    {
-        GameObject segment = Instantiate(segmentPrefab, transform.position, transform.rotation);
-        segment.GetComponent<SpriteRenderer>().color = color;
-    }
-
-    /**
-     * Manages collisions with other players and walls
-     */
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if(collision.CompareTag("Player") || collision.CompareTag("Wall"))
-        {
-            Destroy(gameObject);
-        }
-    }
-
-
-    /**
-     * Subscribe to the onMessage event and assign color.
-     */
-    private void Awake()
-    {
-        Unboared.instance.onMessage += OnMessage; // register Unboared events
-        GetComponent<SpriteRenderer>().color = color;
-    }
-
-
-    /**
-     * At each frame an object is placed at the previous position.
-     */
-    private void FixedUpdate()
-    {
-    	// we increase the size of the segment
-        Grow();
-
-        // we update the position depending on the current position and the direction
-	    transform.position = new Vector2(
-            Mathf.Round(transform.position.x) + direction.x,
-            Mathf.Round(transform.position.y) + direction.y
-        );
-    }
     private void OnDestroy()
     {
         // unregister Unboared listener when the player is destroyed
@@ -113,13 +131,5 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void OnEnable() {
-        GameManager.instance.players.Add(this);
-    }
-
-    private void OnDisable() {
-        GameManager.instance.players.Remove(this);
-        GameManager.instance.CheckForVictory();
-    }
     
 }
