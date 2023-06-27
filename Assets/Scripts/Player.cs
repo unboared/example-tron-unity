@@ -3,14 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityUnboared;
 
-
 public class Player : MonoBehaviour
 {
-    /* The current direction */
+    /* The current direction of the player*/
     private Vector2 direction = Vector2.right;
-
-    /* A reference to the segment prefab */
-    public GameObject segmentPrefab;
 
     /* The color of the player */
     [HideInInspector]
@@ -20,18 +16,17 @@ public class Player : MonoBehaviour
     [HideInInspector]
     public string id, username;
 
-    public void Initialize(string deviceID){
+    /* A reference to the segment prefab */
+    public GameObject segmentPrefab;
+
+    /**
+     * Initialze player's data.
+     */
+    public void Initialize(string deviceID, Vector2 initialDir){
+        direction = initialDir;
         id = deviceID;
         username = Unboared.instance.GetUsername(deviceID);
         ColorUtility.TryParseHtmlString(Unboared.instance.GetColor(deviceID), out color);
-    }
-
-
-    private void Awake()
-    {
-        Debug.Log("Awake Player");
-        Unboared.instance.onMessage += OnMessage; // register Unboared events
-        GetComponent<SpriteRenderer>().color = color;
     }
 
     /**
@@ -63,22 +58,6 @@ public class Player : MonoBehaviour
         }
     }
 
-    /**
-     * At each frame an object is placed at the previous position.
-     */
-    private void FixedUpdate()
-    {
-
-    	// we increase the size of the segment
-        Grow();
-
-        // we update the position depending on the current position and the direction
-	    transform.position = new Vector2(
-            Mathf.Round(transform.position.x) + direction.x,
-            Mathf.Round(transform.position.y) + direction.y
-        );
-
-    }
     
     /**
      * Increase the size of the segment
@@ -100,6 +79,31 @@ public class Player : MonoBehaviour
         }
     }
 
+
+    /**
+     * Subscribe to the onMessage event and assign color.
+     */
+    private void Awake()
+    {
+        Unboared.instance.onMessage += OnMessage; // register Unboared events
+        GetComponent<SpriteRenderer>().color = color;
+    }
+
+
+    /**
+     * At each frame an object is placed at the previous position.
+     */
+    private void FixedUpdate()
+    {
+    	// we increase the size of the segment
+        Grow();
+
+        // we update the position depending on the current position and the direction
+	    transform.position = new Vector2(
+            Mathf.Round(transform.position.x) + direction.x,
+            Mathf.Round(transform.position.y) + direction.y
+        );
+    }
     private void OnDestroy()
     {
         // unregister Unboared listener when the player is destroyed
@@ -110,7 +114,6 @@ public class Player : MonoBehaviour
     }
 
     private void OnEnable() {
-        Debug.Log("OnEnable Player");
         GameManager.instance.players.Add(this);
     }
 
