@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+/* Some configurations */
 public class GameConfig {
     public static int MIN_NUM_PLAYER = 2;
     public static int MAX_NUM_PLAYER = 4;

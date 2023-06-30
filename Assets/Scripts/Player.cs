@@ -43,6 +43,8 @@ public class Player : MonoBehaviour
     {
         GameObject segment = Instantiate(segmentPrefab, transform.position, transform.rotation);
         segment.GetComponent<SpriteRenderer>().color = color;
+        SegmentManager.segments.Add(segment);
+
     }
 
     // ---- MANAGE PLAYER ----

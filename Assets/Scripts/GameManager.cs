@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
@@ -35,6 +37,16 @@ public class GameManager : MonoBehaviour
     }
 
     private void ResetGame() {
+        // Destroy current pixels
+        foreach(GameObject segment in SegmentManager.segments) {
+            Destroy(segment);
+        }
+
+        // Destroy current players
+        foreach(Player obj in players) {
+            Destroy(obj);
+        }
+
         // for each connected players
         List<string> gamepads = Unboared.instance.GetGamepadIDs();
         for (int i = 0; i < Mathf.Min(gamepads.Count, GameConfig.MAX_NUM_PLAYER); i++)
