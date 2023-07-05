@@ -41,8 +41,10 @@ public class Player : MonoBehaviour
      */
     private void Grow()
     {
+        // we instanciate a new pixel (or segment)
         GameObject segment = Instantiate(segmentPrefab, transform.position, transform.rotation);
         segment.GetComponent<SpriteRenderer>().color = color;
+        // we keep its reference in a list in order to destroy it later
         SegmentManager.segments.Add(segment);
 
     }
